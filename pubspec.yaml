@@ -1,0 +1,30 @@
+name: form_gemini_tutorial
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # El corazón de nuestro formulario
+  flutter_form_builder: ^10.2.0 
+  # Una librería complementaria con validadores pre-hechos (email, numérico, etc.)
+  form_builder_validators: ^11.2.0
+  # Para las peticiones al backend
+  dio: ^5.4.3+1
+  # Para guardar en caché
+  shared_preferences: ^2.2.3
+  # Para notificar cambios de estado de forma simple (opcional pero recomendado)
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+
+flutter:
+  uses-material-design: true
