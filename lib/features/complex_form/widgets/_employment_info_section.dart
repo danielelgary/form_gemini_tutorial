@@ -5,57 +5,50 @@ import 'package:form_gemini_tutorial/features/complex_form/controller/form_contr
 import 'package:form_gemini_tutorial/features/complex_form/view/info_box.dart';
 import 'package:provider/provider.dart';
 
-class EmploymentInfoSection extends StatefulWidget {
+class EmploymentInfoSection extends StatelessWidget  {
   const EmploymentInfoSection({super.key});
 
-  @override
-  _EmploymentInfoSectionState createState() => _EmploymentInfoSectionState();
-}
-
-class _EmploymentInfoSectionState extends State<EmploymentInfoSection> {
-  @override
+@override
   Widget build(BuildContext context) {
-    // Obtenemos la key del controlador para saber el estado de otros campos
+    // Obtenemos la key del controlador
     final formKey = context.read<FormController>().formKey;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Sección de Empleo",
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 10),
+        // ... (Título y FormBuilderRadioGroup)
         FormBuilderRadioGroup(
           name: 'employment_status',
-          // ... opciones ...
           decoration: const InputDecoration(
             labelText: 'Estado de Empleo',
           ),
-          onChanged: (value) => setState(() {}),
-          options: ['employed', 'unemployed', 'student']
-              .map((status) => FormBuilderFieldOption(
-                    value: status,
-                    child: Text(status[0].toUpperCase() + status.substring(1)),
-                  ))
-              .toList(),
+          // ¡IMPORTANTE! flutter_form_builder v7+ maneja esto automáticamente.
+          // En versiones anteriores, se puede necesitar un listener.
+          // Para que el formulario se actualice, debemos registrar un listener.
+          onChanged: (value) {
+            // Esta línea es clave. Reconstruye los widgets que dependen del estado del formulario.
+            // (context as Element).markNeedsBuild(); // Una forma de forzar la reconstrucción
+          },
+          options: /* ... */,
         ),
-
-        if (formKey.currentState?.fields['employment_status']?.value ==
-            'employed')
-          FormBuilderTextField(name: 'company_name', decoration: const InputDecoration(labelText: 'Nombre de la Compañía')),
-
-        FormBuilderTextField(
-          name: 'ssn', // Social Security Number
-          decoration: InputDecoration(
-            labelText: 'Número de Seguridad Social',
-            // Añadimos un ícono al final del campo
-            suffixIcon: Tooltip(
-              message:
-                  'Este número es confidencial y se usará únicamente para fines de verificación. No lo compartas.',
-              child: Icon(Icons.help_outline, color: Colors.grey.shade600),
-            ),
-          ),
+        
+        // --- CAMPO CONDICIONAL ---
+        // Usamos un FormBuilderFieldListener para reconstruir solo esta parte
+        // cuando 'employment_status' cambie.
+        FormBuilderFieldListener(
+            name: 'employment_status',
+            builder: (context, field) {
+              if (field?.value == 'employed') {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: FormBuilderTextField(
+                    name: 'company_name',
+                    decoration: const InputDecoration(labelText: 'Nombre de la Compañía'),
+                  ),
+                );
+              }
+              return const SizedBox.shrink(); // Retorna un widget vacío si no se cumple la condición
+            }
         ),
 
         // --- GUÍA VISUAL DINÁMICA ---

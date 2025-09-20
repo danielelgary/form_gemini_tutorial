@@ -14,8 +14,8 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
       home: Scaffold(
         body: Center(
-          child: ComplexFormPage(),
-          //child: WelcomeScreen(),
+          //child: ComplexFormPage(),
+          child: WelcomeScreen(),
         ),
       ),
     );

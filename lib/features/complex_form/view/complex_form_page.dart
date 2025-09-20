@@ -20,28 +20,31 @@ class ComplexFormPage extends StatelessWidget {
         appBar: AppBar(title: const Text("Formulario Modular")),
         body: Consumer<FormController>( // Consumer reconstruye cuando notifyListeners es llamado
           builder: (context, controller, child) {
+
+            // ¡NUEVO! Las secciones ahora son las páginas de nuestro PageView
+            final formSections = [
+              PersonalInfoSection(),
+              EmploymentInfoSection(),
+              LegalSection(),
+            ];
+
             return FormBuilder(
               key: controller.formKey,
               child: Stack(
                 children: [
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        // Cada sección es ahora un widget separado y limpio
-                        PersonalInfoSection(), 
-                        const SizedBox(height: 24),
-                        EmploymentInfoSection(),
-                        const SizedBox(height: 24),
-                        LegalSection(),
-                        const SizedBox(height: 24),
-                        MaterialButton(
-                          onPressed: controller.submitForm,
-                          child: const Text("Enviar"),
-                        ),
-                      ],
-                    ),
+                  PageView(
+                    controller: controller.pageController,
+                    // Deshabilitamos el deslizamiento manual para forzar el uso de botones
+                    physics: const NeverScrollableScrollPhysics(), 
+                    children: formSections.map((section) {
+                      // Envolvemos cada sección en un padding para mantener el diseño
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        child: section,
+                      );
+                    }).toList(),
                   ),
+                  
                   // Muestra un loader si el controlador lo indica
                   if (controller.isLoading)
                     Container(
@@ -49,6 +52,41 @@ class ComplexFormPage extends StatelessWidget {
                       child: const Center(child: CircularProgressIndicator()),
                     ),
                 ],
+              ),
+            );
+          },
+        ),
+        // --- NUEVO: Barra de navegación inferior ---
+        bottomNavigationBar: Consumer<FormController>(
+          builder: (context, controller, child) {
+            final isFirstPage = controller.currentPage == 0;
+            final isLastPage = controller.currentPage == 2; // 2 es la última página (0, 1, 2)
+
+            return BottomAppBar(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Botón "Anterior"
+                    if (!isFirstPage)
+                      TextButton.icon(
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text("Anterior"),
+                        onPressed: controller.previousPage,
+                      ),
+                    
+                    // Indicador de progreso (opcional pero recomendado)
+                    Text("Paso ${controller.currentPage + 1} de 3"),
+
+                    // Botón "Siguiente" o "Enviar"
+                    FilledButton.icon(
+                      icon: Icon(isLastPage ? Icons.check : Icons.arrow_forward),
+                      label: Text(isLastPage ? "Enviar" : "Siguiente"),
+                      onPressed: isLastPage ? controller.submitForm : controller.nextPage,
+                    ),
+                  ],
+                ),
               ),
             );
           },
