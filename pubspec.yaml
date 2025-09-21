@@ -19,6 +19,8 @@ dependencies:
   shared_preferences: ^2.2.3
   # Para notificar cambios de estado de forma simple (opcional pero recomendado)
   provider: ^6.1.2
+  # Para los indicadores de página
+  dots_indicator: ^3.0.0
 
 dev_dependencies:
   flutter_test:
