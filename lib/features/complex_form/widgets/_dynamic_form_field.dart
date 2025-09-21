@@ -38,31 +38,19 @@ class DynamicFormField extends StatelessWidget {
           name: fieldModel.name,
           decoration: InputDecoration(
             labelText: fieldModel.label,
-            prefixIcon: fieldModel.icon != null ? Icon(fieldModel.icon) : null,
+            border: InputBorder.none,
           ),
-          // --- LÓGICA MODIFICADA ---
+          validator: fieldModel.validator,
+
+          options: (fieldModel.optionsMap?.entries ?? [])
+              .map((entry) => FormBuilderFieldOption(
+                    value: entry.key, // El valor guardado será 'employed', 'unemployed', etc.
+                    child: Text(entry.value), // El texto visible será 'Empleado', 'Desempleado', etc.
+                  ))
+              .toList(),
           onChanged: (value) {
-            // 1. Notificamos a la UI que un valor cambió.
             formController.onFieldChanged();
-            // 2. Después, intentamos avanzar.
-            Future.delayed(
-              const Duration(milliseconds: 300),
-              formController.validateAndNext,
-            );
           },
-          options:
-              [
-                // Aquí deberíamos tener una lista de opciones en el modelo
-                // Por simplicidad, vamos a usar opciones hardcodeadas
-                'Opción 1',
-                'Opción 2',
-                'Opción 3',
-              ].map((option) {
-                return FormBuilderFieldOption(
-                  value: option,
-                  child: Text(option),
-                );
-              }).toList(),
         );
 
       case FieldType.checkbox:

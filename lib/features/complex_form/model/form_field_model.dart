@@ -1,18 +1,21 @@
 // lib/features/complex_form/model/form_field_model.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-// Usamos un enum para definir los tipos de campo que soportamos.
-// ¡Esto evita errores de escritura y hace el código más seguro!
 enum FieldType { text, email, radio, checkbox }
 
 class FormFieldModel {
-  final String name;          // El ID único del campo (ej: 'full_name')
-  final String label;         // El texto a mostrar (ej: 'Nombre Completo')
+  final String name;
+  final String label;
   final FieldType type;
   final IconData? icon;
-  final List<String>? options; // Para radios o dropdowns
-  final FormFieldValidator? validator; // Opcionalmente puedes escribir FormFieldValidator<dynamic>?
+  @deprecated // Marcamos 'options' como obsoleto para no usarlo más
+  final List<String>? options; 
+  final FormFieldValidator? validator;
   
+  // --- ¡NUEVO! Un mapa para las opciones (valor interno: texto visible) ---
+  final Map<String, String>? optionsMap;
+
   FormFieldModel({
     required this.name,
     required this.label,
@@ -20,5 +23,6 @@ class FormFieldModel {
     this.icon,
     this.options,
     this.validator,
+    this.optionsMap, // Añadir al constructor
   });
 }

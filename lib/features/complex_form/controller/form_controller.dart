@@ -56,9 +56,14 @@ class FormController with ChangeNotifier {
       FormFieldModel(
         name: 'country',
         label: '¿En qué país resides?',
-        type: FieldType
-            .radio, // O podría ser un dropdown, ¡tendríamos que añadirlo!
-        options: ['Colombia', 'México', 'Argentina', 'Otro'],
+        type: FieldType.radio,
+        optionsMap: const {
+          // <-- Usando la nueva propiedad
+          'colombia': 'Colombia',
+          'mexico': 'México',
+          'argentina': 'Argentina',
+          'other': 'Otro',
+        },
         validator: FormBuilderValidators.required(
           errorText: 'Por favor, selecciona tu país.',
         ),
@@ -68,7 +73,13 @@ class FormController with ChangeNotifier {
         name: 'employment_status',
         label: '¿Cuál es tu situación laboral actual?',
         type: FieldType.radio,
-        options: ['employed', 'unemployed', 'student'],
+        // --- LÓGICA MODIFICADA ---
+        // Usamos el nuevo mapa con las traducciones
+        optionsMap: const {
+          'employed': 'Empleado',
+          'unemployed': 'Desempleado',
+          'student': 'Estudiante',
+        },
         validator: FormBuilderValidators.required(),
       ),
       // Podríamos añadir campos condicionales aquí. Por ejemplo, si el anterior
@@ -98,7 +109,7 @@ class FormController with ChangeNotifier {
 
     if (field != null && field.validate()) {
       field.save();
-      
+
       if (_currentPage < formFields.length - 1) {
         pageController.nextPage(
           duration: const Duration(milliseconds: 400),

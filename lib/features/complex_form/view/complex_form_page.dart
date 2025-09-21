@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_gemini_tutorial/features/complex_form/controller/form_controller.dart';
+import 'package:form_gemini_tutorial/features/complex_form/model/form_field_model.dart';
 import 'package:form_gemini_tutorial/features/complex_form/view/info_box.dart';
 import 'package:form_gemini_tutorial/features/complex_form/widgets/_dynamic_form_field.dart';
 import 'package:provider/provider.dart';
@@ -59,27 +60,42 @@ class ComplexFormPage extends StatelessWidget {
                         final fieldModel = controller.formFields[index];
                         final isLastPage = index == controller.formFields.length - 1;
 
-                        // --- SOLUCIÓN A LA LÓGICA DEL INFOBOX ---
-                        // Leemos el valor directamente del estado del formulario.
-                        // Como el `Consumer` reconstruye el widget en cada cambio
-                        // (gracias a `notifyListeners`), este valor siempre estará actualizado.
-                        final employmentStatusValue = controller
-                            .formKey.currentState?.fields['employment_status']?.value;
+                        // Obtenemos el valor del campo actual para saber si ya fue respondido.
+                        final fieldValue = controller.formKey.currentState?.fields[fieldModel.name]?.value;
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              // 1. El widget del campo de formulario.
                               DynamicFormField(fieldModel: fieldModel),
 
-                              // Mostramos el InfoBox si el campo actual es el de empleo
-                              // y si ya tiene un valor seleccionado.
-                              if (fieldModel.name == 'employment_status' && employmentStatusValue != null)
-                                _buildInfoBox(employmentStatusValue),
+                              // --- ¡NUEVA LÓGICA GENERALIZADA! ---
+                              // 2. Si el campo actual es de tipo radio Y ya tiene un valor...
+                              if (fieldModel.type == FieldType.radio && fieldValue != null)
+                                Column(
+                                  children: [
+                                    // 2a. Mostramos el InfoBox SÓLO si es la pregunta de empleo.
+                                    if (fieldModel.name == 'employment_status')
+                                      _buildInfoBox(fieldValue),
+
+                                    const SizedBox(height: 24),
+
+                                    // 2b. Mostramos el botón "Continuar" para TODAS las preguntas de radio.
+                                    ElevatedButton(
+                                      onPressed: controller.validateAndNext,
+                                      child: const Text('Continuar'),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                      ),
+                                    ),
+                                  ],
+                                ),
 
                               const SizedBox(height: 32),
 
+                              // 3. El botón de envío final en la última página.
                               if (isLastPage)
                                 ElevatedButton.icon(
                                   icon: controller.isLoading
@@ -118,17 +134,19 @@ class ComplexFormPage extends StatelessWidget {
     );
   }
 
-  /// Método auxiliar para construir el InfoBox con una animación de entrada/salida.
+  /// Método auxiliar para construir el InfoBox.
   Widget _buildInfoBox(String? status) {
     final Widget box = switch (status) {
       'student' => const InfoBox(
           key: ValueKey('student_box'),
-          text: '¡Genial! Al ser estudiante, tendrás acceso a descuentos especiales.',
+          text:
+              '¡Genial! Al ser estudiante, tendrás acceso a descuentos especiales en nuestros planes.',
           color: Colors.green,
         ),
       'unemployed' => const InfoBox(
           key: ValueKey('unemployed_box'),
-          text: 'Podemos ayudarte a conectar con oportunidades laborales.',
+          text:
+              'Recuerda que podemos ayudarte a conectar con oportunidades laborales. Asegúrate de completar tu perfil al 100%.',
           color: Colors.orange,
         ),
       _ => const SizedBox.shrink(key: ValueKey('empty_box')),
