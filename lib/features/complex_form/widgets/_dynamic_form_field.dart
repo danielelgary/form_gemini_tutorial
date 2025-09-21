@@ -14,7 +14,7 @@ class DynamicFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     // Con este truco, podemos llamar al controlador desde aquí
     final formController = context.read<FormController>();
-    
+
     // Usamos un switch para decidir qué widget de FormBuilder renderizar
     switch (fieldModel.type) {
       case FieldType.text:
@@ -26,28 +26,58 @@ class DynamicFormField extends StatelessWidget {
             prefixIcon: fieldModel.icon != null ? Icon(fieldModel.icon) : null,
           ),
           validator: fieldModel.validator,
-          keyboardType: fieldModel.type == FieldType.email ? TextInputType.emailAddress : TextInputType.text,
+          keyboardType: fieldModel.type == FieldType.email
+              ? TextInputType.emailAddress
+              : TextInputType.text,
           // Al completar la escritura, avanzamos
           onEditingComplete: formController.validateAndNext,
         );
+
       case FieldType.radio:
         return FormBuilderRadioGroup(
           name: fieldModel.name,
-          decoration: InputDecoration(labelText: fieldModel.label, border: InputBorder.none),
-          validator: fieldModel.validator,
-          options: (fieldModel.options ?? [])
-              .map((opt) => FormBuilderFieldOption(value: opt, child: Text(opt)))
-              .toList(),
-          // Al cambiar la opción, avanzamos automáticamente
-          onChanged: (_) => Future.delayed(const Duration(milliseconds: 300), formController.validateAndNext),
+          decoration: InputDecoration(
+            labelText: fieldModel.label,
+            prefixIcon: fieldModel.icon != null ? Icon(fieldModel.icon) : null,
+          ),
+          // --- LÓGICA MODIFICADA ---
+          onChanged: (value) {
+            // 1. Notificamos a la UI que un valor cambió.
+            formController.onFieldChanged();
+            // 2. Después, intentamos avanzar.
+            Future.delayed(
+              const Duration(milliseconds: 300),
+              formController.validateAndNext,
+            );
+          },
+          options:
+              [
+                // Aquí deberíamos tener una lista de opciones en el modelo
+                // Por simplicidad, vamos a usar opciones hardcodeadas
+                'Opción 1',
+                'Opción 2',
+                'Opción 3',
+              ].map((option) {
+                return FormBuilderFieldOption(
+                  value: option,
+                  child: Text(option),
+                );
+              }).toList(),
         );
+
       case FieldType.checkbox:
-         return FormBuilderCheckbox(
+        return FormBuilderCheckbox(
           name: fieldModel.name,
           title: Text(fieldModel.label),
           validator: fieldModel.validator,
-          // También avanzamos al cambiar
-          onChanged: (_) => Future.delayed(const Duration(milliseconds: 300), formController.validateAndNext),
+          // --- LÓGICA MODIFICADA ---
+          onChanged: (value) {
+            // 1. Notificamos el cambio para que la UI se actualice.
+            formController.onFieldChanged();
+            // 2. Validamos sin avanzar, ya que es el último paso.
+            formController.formKey.currentState?.fields[fieldModel.name]
+                ?.validate();
+          },
         );
       default:
         return Text('Error: Tipo de campo no soportado');

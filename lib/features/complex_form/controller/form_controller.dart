@@ -7,7 +7,7 @@ import '../model/form_field_model.dart'; // ¡Importamos nuestro nuevo modelo!
 class FormController with ChangeNotifier {
   final formKey = GlobalKey<FormBuilderState>();
   final PageController pageController = PageController();
-  
+
   bool isLoading = false;
   int _currentPage = 0;
   int get currentPage => _currentPage;
@@ -43,10 +43,27 @@ class FormController with ChangeNotifier {
         icon: Icons.email,
         // --- ESTA PARTE AHORA ES VÁLIDA ---
         validator: FormBuilderValidators.compose([
-          FormBuilderValidators.required(errorText: 'El correo es obligatorio.'),
-          FormBuilderValidators.email(errorText: 'El formato del correo no es válido.') as FormFieldValidator<Object>,
+          FormBuilderValidators.required(
+            errorText: 'El correo es obligatorio.',
+          ),
+          FormBuilderValidators.email(
+                errorText: 'El formato del correo no es válido.',
+              )
+              as FormFieldValidator<Object>,
         ]),
       ),
+      // --- NUEVA PREGUNTA AÑADIDA AQUÍ ---
+      FormFieldModel(
+        name: 'country',
+        label: '¿En qué país resides?',
+        type: FieldType
+            .radio, // O podría ser un dropdown, ¡tendríamos que añadirlo!
+        options: ['Colombia', 'México', 'Argentina', 'Otro'],
+        validator: FormBuilderValidators.required(
+          errorText: 'Por favor, selecciona tu país.',
+        ),
+      ),
+
       FormFieldModel(
         name: 'employment_status',
         label: '¿Cuál es tu situación laboral actual?',
@@ -60,30 +77,33 @@ class FormController with ChangeNotifier {
         name: 'accept_terms',
         label: 'Para terminar, ¿aceptas los Términos y Condiciones?',
         type: FieldType.checkbox,
-        validator: FormBuilderValidators.equal(true, errorText: 'Debes aceptar los términos.'),
+        validator: FormBuilderValidators.equal(
+          true,
+          errorText: 'Debes aceptar los términos.',
+        ),
       ),
     ];
   }
 
-  // --- ¡NUEVO! Método para avanzar de forma inteligente ---
+  void onFieldChanged() {
+    // Esta es la línea clave. Notifica a todos los widgets `Consumer`
+    // para que se reconstruyan y puedan mostrar los datos más recientes.
+    notifyListeners();
+  }
+
   void validateAndNext() {
-    // Obtenemos el nombre del campo de la página actual
+    // Este método ahora solo se enfoca en validar y avanzar de página.
     final currentFieldName = formFields[_currentPage].name;
-    
-    // Validamos SOLO el campo actual
     final field = formKey.currentState?.fields[currentFieldName];
+
     if (field != null && field.validate()) {
-      field.save(); // Guardamos el valor
+      field.save();
       
-      // Si no es la última pregunta, avanzamos
       if (_currentPage < formFields.length - 1) {
         pageController.nextPage(
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeInOut,
         );
-      } else {
-        // Si es la última, intentamos enviar el formulario
-        submitForm();
       }
     }
   }
@@ -96,8 +116,22 @@ class FormController with ChangeNotifier {
   }
 
   Future<void> submitForm() async {
-    // ... tu lógica de submit ...
-    print("Formulario enviado: ${formKey.currentState?.value}");
+    // Primero, validamos todo el formulario por si acaso.
+    if (formKey.currentState?.saveAndValidate() ?? false) {
+      isLoading = true;
+      notifyListeners();
+
+      await Future.delayed(
+        const Duration(seconds: 1),
+      ); // Simula una llamada de red
+
+      print("✅ Formulario enviado con éxito: ${formKey.currentState?.value}");
+
+      isLoading = false;
+      notifyListeners();
+    } else {
+      print("❌ Error: El formulario no es válido.");
+    }
   }
 
   @override
