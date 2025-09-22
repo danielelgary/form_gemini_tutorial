@@ -1,5 +1,5 @@
+// Punto de entrada de la aplicación, ahora inicia en WelcomeScreen.
 import 'package:flutter/material.dart';
-import 'package:form_gemini_tutorial/features/complex_form/view/complex_form_page.dart';
 import 'package:form_gemini_tutorial/welcome_screen.dart';
 
 void main() {
@@ -11,13 +11,19 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: ComplexFormPage(),
-          //child: WelcomeScreen(),
-        ),
+    return MaterialApp(
+      title: 'habiGO',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade700,
+            foregroundColor: Colors.white,
+          )
+        )
       ),
+      home: const WelcomeScreen(), // La aplicación ahora empieza aquí
     );
   }
 }

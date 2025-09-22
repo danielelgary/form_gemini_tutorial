@@ -1,22 +1,20 @@
 // lib/features/complex_form/controller/form_controller.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-import '../model/form_field_model.dart'; // ¡Importamos nuestro nuevo modelo!
+import '../model/service_model.dart'; // Importamos el nuevo modelo de Servicio
 
-class FormController with ChangeNotifier {
+class CharacterizationFormController with ChangeNotifier {
   final formKey = GlobalKey<FormBuilderState>();
   final PageController pageController = PageController();
 
-  bool isLoading = false;
   int _currentPage = 0;
   int get currentPage => _currentPage;
 
-  // --- ¡NUEVO! La lista de preguntas que define nuestro formulario ---
-  late final List<FormFieldModel> formFields;
+  // El estado principal ahora es una lista de servicios
+  List<ServiceModel> services = [];
+  bool? isInReps;
 
-  FormController() {
-    _initializeFormFields(); // Inicializamos la lista
+  CharacterizationFormController() {
     pageController.addListener(() {
       final newPage = pageController.page?.round() ?? 0;
       if (newPage != _currentPage) {
@@ -25,123 +23,62 @@ class FormController with ChangeNotifier {
       }
     });
   }
-
-  // Aquí definimos la estructura completa de nuestro formulario
-  void _initializeFormFields() {
-    formFields = [
-      FormFieldModel(
-        name: 'full_name',
-        label: 'Primero, ¿cuál es tu nombre completo?',
-        type: FieldType.text,
-        icon: Icons.person,
-        validator: FormBuilderValidators.required(),
-      ),
-      FormFieldModel(
-        name: 'email',
-        label: 'Genial, ahora tu correo electrónico.',
-        type: FieldType.email,
-        icon: Icons.email,
-        // --- ESTA PARTE AHORA ES VÁLIDA ---
-        validator: FormBuilderValidators.compose([
-          FormBuilderValidators.required(
-            errorText: 'El correo es obligatorio.',
-          ),
-          FormBuilderValidators.email(
-                errorText: 'El formato del correo no es válido.',
-              )
-              as FormFieldValidator<Object>,
-        ]),
-      ),
-      // --- NUEVA PREGUNTA AÑADIDA AQUÍ ---
-      FormFieldModel(
-        name: 'country',
-        label: '¿En qué país resides?',
-        type: FieldType.radio,
-        optionsMap: const {
-          // <-- Usando la nueva propiedad
-          'colombia': 'Colombia',
-          'mexico': 'México',
-          'argentina': 'Argentina',
-          'other': 'Otro',
-        },
-        validator: FormBuilderValidators.required(
-          errorText: 'Por favor, selecciona tu país.',
-        ),
-      ),
-
-      FormFieldModel(
-        name: 'employment_status',
-        label: '¿Cuál es tu situación laboral actual?',
-        type: FieldType.radio,
-        // --- LÓGICA MODIFICADA ---
-        // Usamos el nuevo mapa con las traducciones
-        optionsMap: const {
-          'employed': 'Empleado',
-          'unemployed': 'Desempleado',
-          'student': 'Estudiante',
-        },
-        validator: FormBuilderValidators.required(),
-      ),
-      // Podríamos añadir campos condicionales aquí. Por ejemplo, si el anterior
-      // fue 'employed', el siguiente campo sería 'company_name'.
-      FormFieldModel(
-        name: 'accept_terms',
-        label: 'Para terminar, ¿aceptas los Términos y Condiciones?',
-        type: FieldType.checkbox,
-        validator: FormBuilderValidators.equal(
-          true,
-          errorText: 'Debes aceptar los términos.',
-        ),
-      ),
-    ];
-  }
-
-  void onFieldChanged() {
-    // Esta es la línea clave. Notifica a todos los widgets `Consumer`
-    // para que se reconstruyan y puedan mostrar los datos más recientes.
+  
+  void setIsInReps(bool value) {
+    isInReps = value;
     notifyListeners();
   }
 
-  void validateAndNext() {
-    // Este método ahora solo se enfoca en validar y avanzar de página.
-    final currentFieldName = formFields[_currentPage].name;
-    final field = formKey.currentState?.fields[currentFieldName];
+  // --- Métodos para gestionar la lista de servicios ---
+  void addService(ServiceModel service) {
+    services.add(service);
+    notifyListeners();
+  }
+  
+  void removeService(ServiceModel service) {
+    services.remove(service);
+    notifyListeners();
+  }
+  
+  void updateService(int index, ServiceModel service) {
+    if (index >= 0 && index < services.length) {
+      services[index] = service;
+      notifyListeners();
+    }
+  }
 
-    if (field != null && field.validate()) {
-      field.save();
-
-      if (_currentPage < formFields.length - 1) {
-        pageController.nextPage(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      }
+  void nextPage() {
+    if (formKey.currentState?.saveAndValidate(focusOnInvalid: false) ?? false) {
+       pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
     }
   }
 
   void previousPage() {
     pageController.previousPage(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeIn,
     );
   }
 
   Future<void> submitForm() async {
-    // Primero, validamos todo el formulario por si acaso.
-    if (formKey.currentState?.saveAndValidate() ?? false) {
-      isLoading = true;
-      notifyListeners();
-
-      await Future.delayed(
-        const Duration(seconds: 1),
-      ); // Simula una llamada de red
-
-      print("✅ Formulario enviado con éxito: ${formKey.currentState?.value}");
-
-      isLoading = false;
-      notifyListeners();
+    if (formKey.currentState?.saveAndValidate(focusOnInvalid: false) ?? false) {
+      final formData = formKey.currentState!.value;
+      print("--- FORMULARIO A ENVIAR ---");
+      print("Datos principales:");
+      print(formData);
+      print("--- Servicios Añadidos (${services.length}) ---");
+      for (var service in services) {
+        print("- Servicio: ${service.nombre}");
+        print("  Modalidad: ${service.modalidad}");
+        print("  Infraestructura: ${service.infraestructura.direccion}");
+        print("  Capacidad: ${service.infraestructura.capacidadInstalada.length} items");
+      }
+      print("--------------------------");
     } else {
-      print("❌ Error: El formulario no es válido.");
+      print("El formulario contiene errores.");
     }
   }
 

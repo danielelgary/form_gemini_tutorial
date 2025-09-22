@@ -1,4 +1,5 @@
 // lib/features/complex_form/widgets/_dynamic_form_field.dart
+// Widget reutilizable que construye el campo de formulario correcto según el modelo.
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import '../model/form_field_model.dart';
@@ -12,10 +13,8 @@ class DynamicFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Con este truco, podemos llamar al controlador desde aquí
-    final formController = context.read<FormController>();
+    final formController = context.read<CharacterizationFormController>();
 
-    // Usamos un switch para decidir qué widget de FormBuilder renderizar
     switch (fieldModel.type) {
       case FieldType.text:
       case FieldType.email:
@@ -26,45 +25,50 @@ class DynamicFormField extends StatelessWidget {
             prefixIcon: fieldModel.icon != null ? Icon(fieldModel.icon) : null,
           ),
           validator: fieldModel.validator,
-          keyboardType: fieldModel.type == FieldType.email
-              ? TextInputType.emailAddress
-              : TextInputType.text,
-          // Al completar la escritura, avanzamos
+          keyboardType: fieldModel.type == FieldType.email ? TextInputType.emailAddress : TextInputType.text,
           onEditingComplete: formController.validateAndNext,
         );
-
       case FieldType.radio:
         return FormBuilderRadioGroup(
           name: fieldModel.name,
-          decoration: InputDecoration(
-            labelText: fieldModel.label,
-            border: InputBorder.none,
-          ),
+          decoration: InputDecoration(labelText: fieldModel.label, border: InputBorder.none),
           validator: fieldModel.validator,
-
           options: (fieldModel.optionsMap?.entries ?? [])
               .map((entry) => FormBuilderFieldOption(
-                    value: entry.key, // El valor guardado será 'employed', 'unemployed', etc.
-                    child: Text(entry.value), // El texto visible será 'Empleado', 'Desempleado', etc.
+                    value: entry.key,
+                    child: Text(entry.value),
                   ))
               .toList(),
           onChanged: (value) {
             formController.onFieldChanged();
           },
         );
-
+      case FieldType.dropdown:
+        return FormBuilderDropdown(
+          name: fieldModel.name,
+          decoration: InputDecoration(
+            labelText: fieldModel.label,
+          ),
+          validator: fieldModel.validator,
+          items: (fieldModel.optionsMap?.entries ?? [])
+              .map((entry) => DropdownMenuItem(
+                    value: entry.key,
+                    child: Text(entry.value),
+                  ))
+              .toList(),
+          // --- CAMBIO CLAVE: Quitamos el avance automático ---
+          onChanged: (value) {
+            formController.onFieldChanged();
+          },
+        );
       case FieldType.checkbox:
         return FormBuilderCheckbox(
           name: fieldModel.name,
           title: Text(fieldModel.label),
           validator: fieldModel.validator,
-          // --- LÓGICA MODIFICADA ---
           onChanged: (value) {
-            // 1. Notificamos el cambio para que la UI se actualice.
             formController.onFieldChanged();
-            // 2. Validamos sin avanzar, ya que es el último paso.
-            formController.formKey.currentState?.fields[fieldModel.name]
-                ?.validate();
+            formController.formKey.currentState?.fields[fieldModel.name]?.validate();
           },
         );
       default:
