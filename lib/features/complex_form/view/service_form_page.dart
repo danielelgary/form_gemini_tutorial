@@ -45,7 +45,6 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
     }
   }
 
-  // ... (el método _addCapacidad se mantiene igual)
   void _addCapacidad(String tipo) {
     showDialog(
       context: context,
@@ -79,7 +78,6 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +106,6 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
               Text("Detalles del Servicio", style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               
-              // --- CAMPO DE BÚSQUEDA PERSONALIZADO ---
               FormBuilderField<String>(
                 name: 'nombre_servicio',
                 validator: FormBuilderValidators.required(errorText: "Debes seleccionar un servicio."),
@@ -130,9 +127,7 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
                       ),
                       child: Text(
                         field.value ?? 'Toca para seleccionar un servicio',
-                        style: TextStyle(
-                          color: field.value == null ? Colors.grey.shade600 : null,
-                        ),
+                        style: TextStyle(color: field.value == null ? Theme.of(context).hintColor : null),
                       ),
                     ),
                   );
@@ -151,7 +146,6 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
               ),
               const Divider(height: 48),
 
-              // ... El resto del formulario (Infraestructura, Capacidad) se mantiene igual ...
               Text("Infraestructura de la Sede", style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               FormBuilderTextField(name: 'departamento', decoration: const InputDecoration(labelText: 'Departamento', border: OutlineInputBorder()), validator: FormBuilderValidators.required()),
