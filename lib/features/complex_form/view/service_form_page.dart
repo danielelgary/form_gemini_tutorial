@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:form_gemini_tutorial/features/complex_form/model/service_model.dart';
-import 'package:form_gemini_tutorial/features/complex_form/view/service_search_page.dart';
+// Necesitaremos estos dos archivos, que puedes crear después si quieres.
+// Por ahora, puedes comentar la línea del campo de búsqueda para evitar errores.
+// import 'package:form_gemini_tutorial/features/complex_form/view/service_search_page.dart';
 
 class ServiceFormPage extends StatefulWidget {
   final ServiceModel? serviceToEdit;
@@ -27,7 +29,7 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
   void _saveAndReturn() {
     if (_serviceFormKey.currentState?.saveAndValidate() ?? false) {
       final formData = _serviceFormKey.currentState!.value;
-      
+
       final newService = ServiceModel(
         nombre: formData['nombre_servicio'],
         modalidad: formData['modalidad'],
@@ -40,7 +42,7 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
           capacidad: _capacidadInstalada,
         ),
       );
-      
+
       Navigator.of(context).pop(newService);
     }
   }
@@ -105,33 +107,11 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
             children: [
               Text("Detalles del Servicio", style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
-              
-              FormBuilderField<String>(
+
+              FormBuilderTextField(
                 name: 'nombre_servicio',
-                validator: FormBuilderValidators.required(errorText: "Debes seleccionar un servicio."),
-                builder: (FormFieldState<String> field) {
-                  return InkWell(
-                    onTap: () async {
-                      final selectedService = await Navigator.of(context).push<String>(
-                        MaterialPageRoute(builder: (_) => const ServiceSearchPage()),
-                      );
-                      if (selectedService != null) {
-                        field.didChange(selectedService);
-                      }
-                    },
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'Nombre del servicio a inscribir',
-                        border: const OutlineInputBorder(),
-                        errorText: field.errorText,
-                      ),
-                      child: Text(
-                        field.value ?? 'Toca para seleccionar un servicio',
-                        style: TextStyle(color: field.value == null ? Theme.of(context).hintColor : null),
-                      ),
-                    ),
-                  );
-                },
+                decoration: const InputDecoration(labelText: 'Nombre del servicio a inscribir', border: OutlineInputBorder()),
+                validator: FormBuilderValidators.required()
               ),
               const SizedBox(height: 16),
               FormBuilderDropdown(

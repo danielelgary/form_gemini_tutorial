@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:form_gemini_tutorial/features/complex_form/controller/form_controller.dart';
 import 'package:form_gemini_tutorial/features/complex_form/model/service_model.dart';
-import 'package:form_gemini_tutorial/features/complex_form/view/service_form_page.dart';
+// Este import dará error temporalmente hasta que creemos el siguiente archivo.
+import 'package:form_gemini_tutorial/features/complex_form/view/service_form_page.dart'; 
 import 'package:provider/provider.dart';
 
 class ServicesSectionPage extends StatelessWidget {

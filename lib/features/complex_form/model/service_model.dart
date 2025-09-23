@@ -1,5 +1,6 @@
 // lib/features/complex_form/model/service_model.dart
 
+// Modelo para la capacidad instalada (consultorios, salas, etc.)
 class CapacidadInstalada {
   String tipo; // "consultorio" o "sala"
   String finalidad;
@@ -16,12 +17,18 @@ class CapacidadInstalada {
   }
 }
 
+// Modelo para la Sede (ahora llamada Infraestructura para coincidir con el JSON)
 class Infraestructura {
+  // Paso 9: Ubicación
   String departamento;
   String ciudad;
   String direccion;
-  String disposicionLocativa;
+
+  // Paso 10: Detalles
+  String disposicionLocativa; // 'primer_piso', 'segundo_piso_o_mas'
   bool tieneRetie;
+
+  // Paso 11: Capacidad Instalada
   List<CapacidadInstalada> capacidadInstalada;
 
   Infraestructura({
@@ -39,8 +46,9 @@ class Infraestructura {
   }
 }
 
+// El modelo principal que representa un Servicio completo
 class ServiceModel {
-  String nombre;
+  String nombre; // 'Atención de urgencias', 'Consulta externa', etc.
   String modalidad;
   Infraestructura infraestructura;
 
