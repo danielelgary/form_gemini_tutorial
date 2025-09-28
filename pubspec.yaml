@@ -1,7 +1,7 @@
 name: form_gemini_tutorial
-description: "A new Flutter project."
+description: "Una aplicación Flutter para formularios complejos con integración backend."
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.0+1
 
 environment:
   sdk: ^3.9.0
@@ -9,24 +9,59 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # El corazón de nuestro formulario
+    
+  # Formularios y validación
   flutter_form_builder: ^10.2.0 
-  # Una librería complementaria con validadores pre-hechos (email, numérico, etc.)
   form_builder_validators: ^11.2.0
-  # Para las peticiones al backend
+  
+  # Comunicación con backend
   dio: ^5.4.3+1
-  # Para guardar en caché
+  
+  # Persistencia y caché
   shared_preferences: ^2.2.3
-  # Para notificar cambios de estado de forma simple (opcional pero recomendado)
+  
+  # Gestión de estado
   provider: ^6.1.2
-  # Para los indicadores de página
+  
+  # UI Components
   dots_indicator: ^3.0.0
-
+  
+  # Serialización JSON
+  json_annotation: ^4.8.1
+  
+  # Utilidades
+  equatable: ^2.0.5
+  
+  # Networking y logs
+  pretty_dio_logger: ^1.3.1
+  
+  # Manejo de fechas
+  intl: ^0.18.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-
-
+  
+  # Generación de código para JSON
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.9
+  
+  # Testing
+  mockito: ^5.4.4
+  
 flutter:
   uses-material-design: true
+  
+  # Assets
+  # assets:
+  #   - images/
+  #   - icons/
+  
+  # Fonts
+  # fonts:
+  #   - family: CustomFont
+  #     fonts:
+  #       - asset: fonts/CustomFont-Regular.ttf
+  #       - asset: fonts/CustomFont-Bold.ttf
+  #         weight: 700
