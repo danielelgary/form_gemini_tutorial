@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../controller/form_controller_improved.dart';
 import '../widgets/loading_overlay.dart';
-import '../model/service_model_improved.dart';
+import '../model/service_model.dart'; // Usar modelo original
 
 /// Ejemplo de implementación de la página de formulario mejorada
 class ImprovedFormExample extends StatelessWidget {
@@ -15,7 +15,7 @@ class ImprovedFormExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CharacterizationFormController(),
+      create: (_) => CharacterizationFormControllerImproved(),
       child: const _FormContent(),
     );
   }
@@ -26,7 +26,7 @@ class _FormContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CharacterizationFormController>(
+    return Consumer<CharacterizationFormControllerImproved>(
       builder: (context, controller, child) {
         return Scaffold(
           appBar: AppBar(
@@ -71,8 +71,8 @@ class _FormContent extends StatelessWidget {
                   ErrorDisplay(
                     message: controller.errorMessage,
                     fieldErrors: controller.validationErrors,
-                    onRetry: () => controller._loadInitialData(),
-                    onDismiss: () => controller._clearErrors(),
+                    onRetry: () => controller.loadInitialData(),
+                    onDismiss: () => controller.clearErrors(),
                   ),
                 
                 Expanded(
@@ -101,7 +101,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Página de bienvenida
-  Widget _buildWelcomePage(BuildContext context, CharacterizationFormController controller) {
+  Widget _buildWelcomePage(BuildContext context, CharacterizationFormControllerImproved controller) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -127,7 +127,10 @@ class _FormContent extends StatelessWidget {
               labelText: 'Estado REPS',
               border: OutlineInputBorder(),
             ),
-            onChanged: controller.setIsInReps,
+            onChanged: (value) {
+              controller.setIsInReps(value);
+              controller.onFieldChanged('is_in_reps', value);
+            },
             validator: FormBuilderValidators.required(
               errorText: 'Debe seleccionar una opción',
             ),
@@ -176,7 +179,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Página de información personal
-  Widget _buildPersonalInfoPage(BuildContext context, CharacterizationFormController controller) {
+  Widget _buildPersonalInfoPage(BuildContext context, CharacterizationFormControllerImproved controller) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: SingleChildScrollView(
@@ -196,6 +199,7 @@ class _FormContent extends StatelessWidget {
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.person),
               ),
+              onChanged: (value) => controller.onFieldChanged('nombres', value),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: 'Los nombres son requeridos'),
                 FormBuilderValidators.minLength(2, errorText: 'Mínimo 2 caracteres'),
@@ -211,6 +215,7 @@ class _FormContent extends StatelessWidget {
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.person_outline),
               ),
+              onChanged: (value) => controller.onFieldChanged('apellidos', value),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: 'Los apellidos son requeridos'),
                 FormBuilderValidators.minLength(2, errorText: 'Mínimo 2 caracteres'),
@@ -227,6 +232,7 @@ class _FormContent extends StatelessWidget {
                 prefixIcon: Icon(Icons.badge),
               ),
               keyboardType: TextInputType.number,
+              onChanged: (value) => controller.onFieldChanged('documento', value),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: 'El documento es requerido'),
                 FormBuilderValidators.numeric(errorText: 'Solo números'),
@@ -244,6 +250,7 @@ class _FormContent extends StatelessWidget {
                 prefixIcon: Icon(Icons.email),
               ),
               keyboardType: TextInputType.emailAddress,
+              onChanged: (value) => controller.onFieldChanged('email', value),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: 'El email es requerido'),
                 FormBuilderValidators.email(errorText: 'Ingrese un email válido'),
@@ -261,6 +268,7 @@ class _FormContent extends StatelessWidget {
                 hintText: '300XXXXXXX',
               ),
               keyboardType: TextInputType.phone,
+              onChanged: (value) => controller.onFieldChanged('telefono', value),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(errorText: 'El teléfono es requerido'),
                 FormBuilderValidators.numeric(errorText: 'Solo números'),
@@ -274,7 +282,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Página de servicios
-  Widget _buildServicesPage(BuildContext context, CharacterizationFormController controller) {
+  Widget _buildServicesPage(BuildContext context, CharacterizationFormControllerImproved controller) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -358,7 +366,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Página de resumen
-  Widget _buildSummaryPage(BuildContext context, CharacterizationFormController controller) {
+  Widget _buildSummaryPage(BuildContext context, CharacterizationFormControllerImproved controller) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -454,7 +462,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Barra de navegación
-  Widget _buildNavigationBar(BuildContext context, CharacterizationFormController controller) {
+  Widget _buildNavigationBar(BuildContext context, CharacterizationFormControllerImproved controller) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -484,7 +492,7 @@ class _FormContent extends StatelessWidget {
               onPressed: controller.canNavigateNext 
                   ? () async {
                       if (controller.currentPage < 3) {
-                        await controller.nextPage();
+                        await controller.validateAndNext();
                       }
                     }
                   : null,
@@ -499,7 +507,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Diálogo para agregar servicio
-  Future<void> _showAddServiceDialog(BuildContext context, CharacterizationFormController controller) async {
+  Future<void> _showAddServiceDialog(BuildContext context, CharacterizationFormControllerImproved controller) async {
     // Implementar diálogo de agregar servicio
     // Por ahora, agregar un servicio de ejemplo
     final service = ServiceModel(
@@ -516,7 +524,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Envía el formulario
-  Future<void> _submitForm(BuildContext context, CharacterizationFormController controller) async {
+  Future<void> _submitForm(BuildContext context, CharacterizationFormControllerImproved controller) async {
     final result = await controller.submitForm();
     
     if (result != null && result.success) {
@@ -539,7 +547,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Diálogo de confirmación para reiniciar
-  Future<void> _showResetDialog(BuildContext context, CharacterizationFormController controller) async {
+  Future<void> _showResetDialog(BuildContext context, CharacterizationFormControllerImproved controller) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -564,7 +572,7 @@ class _FormContent extends StatelessWidget {
   }
 
   /// Obtiene el mensaje de carga apropiado
-  String _getLoadingMessage(CharacterizationFormController controller) {
+  String _getLoadingMessage(CharacterizationFormControllerImproved controller) {
     if (controller.isSubmitting) return 'Enviando formulario...';
     if (controller.isValidating) return 'Validando...';
     return 'Cargando...';
