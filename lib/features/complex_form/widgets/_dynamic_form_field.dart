@@ -26,7 +26,10 @@ class DynamicFormField extends StatelessWidget {
           ),
           validator: fieldModel.validator,
           keyboardType: fieldModel.type == FieldType.email ? TextInputType.emailAddress : TextInputType.text,
-          onEditingComplete: formController.validateAndNext,
+          onEditingComplete: () {
+            // Simplificado para evitar errores
+            formController.nextPage();
+          },
         );
       case FieldType.radio:
         return FormBuilderRadioGroup(
@@ -40,7 +43,10 @@ class DynamicFormField extends StatelessWidget {
                   ))
               .toList(),
           onChanged: (value) {
-            formController.onFieldChanged();
+            // Método simplificado
+            if (formController.formKey.currentState != null) {
+              formController.formKey.currentState!.fields[fieldModel.name]?.validate();
+            }
           },
         );
       case FieldType.dropdown:
@@ -56,9 +62,11 @@ class DynamicFormField extends StatelessWidget {
                     child: Text(entry.value),
                   ))
               .toList(),
-          // --- CAMBIO CLAVE: Quitamos el avance automático ---
           onChanged: (value) {
-            formController.onFieldChanged();
+            // Método simplificado
+            if (formController.formKey.currentState != null) {
+              formController.formKey.currentState!.fields[fieldModel.name]?.validate();
+            }
           },
         );
       case FieldType.checkbox:
@@ -67,12 +75,14 @@ class DynamicFormField extends StatelessWidget {
           title: Text(fieldModel.label),
           validator: fieldModel.validator,
           onChanged: (value) {
-            formController.onFieldChanged();
-            formController.formKey.currentState?.fields[fieldModel.name]?.validate();
+            // Método simplificado
+            if (formController.formKey.currentState != null) {
+              formController.formKey.currentState!.fields[fieldModel.name]?.validate();
+            }
           },
         );
       default:
-        return Text('Error: Tipo de campo no soportado');
+        return const Text('Error: Tipo de campo no soportado');
     }
   }
 }
