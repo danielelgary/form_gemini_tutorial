@@ -4,7 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-import '../model/service_model_improved.dart';
+import '../model/service_model.dart'; // Usar el modelo original por compatibilidad
 import '../model/real_form_model.dart';
 import '../repository/form_repository.dart';
 
@@ -20,7 +20,7 @@ enum FormState {
 }
 
 /// Controller mejorado con gestión de estado robusta
-class CharacterizationFormController with ChangeNotifier {
+class CharacterizationFormControllerImproved with ChangeNotifier {
   final FormRepository _repository;
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
   final PageController pageController = PageController();
@@ -61,7 +61,7 @@ class CharacterizationFormController with ChangeNotifier {
   bool _autoSaveEnabled = true;
   bool get autoSaveEnabled => _autoSaveEnabled;
 
-  CharacterizationFormController({FormRepository? repository})
+  CharacterizationFormControllerImproved({FormRepository? repository})
       : _repository = repository ?? FormRepository() {
     _initializeController();
   }
@@ -69,12 +69,12 @@ class CharacterizationFormController with ChangeNotifier {
   /// Inicialización del controller
   Future<void> _initializeController() async {
     pageController.addListener(_onPageChanged);
-    await _loadInitialData();
+    await loadInitialData();
     await _loadDraftIfExists();
   }
 
-  /// Carga datos iniciales desde el backend
-  Future<void> _loadInitialData() async {
+  /// Carga datos iniciales desde el backend (método público)
+  Future<void> loadInitialData() async {
     _setState(FormState.loading);
     
     try {
@@ -119,7 +119,7 @@ class CharacterizationFormController with ChangeNotifier {
   void setIsInReps(bool? value) {
     if (_isInReps != value) {
       _isInReps = value;
-      _clearValidationErrors();
+      clearValidationErrors();
       notifyListeners();
       
       if (_autoSaveEnabled) {
@@ -128,26 +128,42 @@ class CharacterizationFormController with ChangeNotifier {
     }
   }
 
+  /// Método para manejar cambios en campos del formulario
+  void onFieldChanged(String fieldName, dynamic value) {
+    // Limpiar errores de validación para el campo específico
+    if (_validationErrors?.containsKey(fieldName) == true) {
+      _validationErrors!.remove(fieldName);
+      notifyListeners();
+    }
+    
+    // Auto-guardar si está habilitado
+    if (_autoSaveEnabled) {
+      _autoSaveDraft();
+    }
+  }
+
+  /// Valida y navega a la siguiente página
+  Future<bool> validateAndNext() async {
+    if (!_validateCurrentPage()) {
+      return false;
+    }
+    
+    if (formKey.currentState?.saveAndValidate(focusOnInvalid: false) ?? false) {
+      await pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
+      return true;
+    }
+    
+    return false;
+  }
+
   /// Agrega un servicio con validación
   Future<bool> addService(ServiceModel service) async {
     _setState(FormState.validating);
     
     try {
-      // Validar localmente primero
-      final localErrors = service.validate();
-      if (localErrors.isNotEmpty) {
-        _setValidationErrors({'service': localErrors});
-        return false;
-      }
-      
-      // Validar en el backend
-      final validationResult = await _repository.validateService(service);
-      
-      if (!validationResult.isValid) {
-        _setError(validationResult.message);
-        return false;
-      }
-      
       // Verificar duplicados
       if (_services.any((s) => s.nombre == service.nombre && 
                              s.modalidad == service.modalidad)) {
@@ -155,8 +171,11 @@ class CharacterizationFormController with ChangeNotifier {
         return false;
       }
       
+      // Validar en el backend (simulado por ahora)
+      await Future.delayed(const Duration(milliseconds: 500));
+      
       _services.add(service);
-      _clearErrors();
+      clearErrors();
       _setState(FormState.loaded);
       
       if (_autoSaveEnabled) {
@@ -173,7 +192,7 @@ class CharacterizationFormController with ChangeNotifier {
   /// Remueve un servicio
   void removeService(ServiceModel service) {
     _services.remove(service);
-    _clearErrors();
+    clearErrors();
     notifyListeners();
     
     if (_autoSaveEnabled) {
@@ -191,15 +210,11 @@ class CharacterizationFormController with ChangeNotifier {
     _setState(FormState.validating);
     
     try {
-      final validationResult = await _repository.validateService(service);
-      
-      if (!validationResult.isValid) {
-        _setError(validationResult.message);
-        return false;
-      }
+      // Simular validación en backend
+      await Future.delayed(const Duration(milliseconds: 500));
       
       _services[index] = service;
-      _clearErrors();
+      clearErrors();
       _setState(FormState.loaded);
       
       if (_autoSaveEnabled) {
@@ -215,19 +230,7 @@ class CharacterizationFormController with ChangeNotifier {
 
   /// Navega a la siguiente página
   Future<bool> nextPage() async {
-    if (!_validateCurrentPage()) {
-      return false;
-    }
-    
-    if (formKey.currentState?.saveAndValidate(focusOnInvalid: false) ?? false) {
-      await pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeIn,
-      );
-      return true;
-    }
-    
-    return false;
+    return await validateAndNext();
   }
 
   /// Navega a la página anterior
@@ -240,7 +243,7 @@ class CharacterizationFormController with ChangeNotifier {
 
   /// Valida la página actual
   bool _validateCurrentPage() {
-    _clearValidationErrors();
+    clearValidationErrors();
     
     // Validaciones específicas por página
     switch (_currentPage) {
@@ -301,10 +304,15 @@ class CharacterizationFormController with ChangeNotifier {
     final formValues = formKey.currentState?.value ?? {};
     
     return RealFormModel(
-      // Mapear los valores del formulario a tu modelo
-      services: _services,
       isInReps: _isInReps,
-      // Agregar otros campos según tu RealFormModel
+      nombres: formValues['nombres'],
+      apellidos: formValues['apellidos'],
+      documento: formValues['documento'],
+      email: formValues['email'],
+      telefono: formValues['telefono'],
+      services: _services,
+      createdAt: DateTime.now(),
+      isDraft: false,
     );
   }
 
@@ -327,13 +335,6 @@ class CharacterizationFormController with ChangeNotifier {
       errors['services'] = ['Debe agregar al menos un servicio'];
     }
     
-    for (int i = 0; i < _services.length; i++) {
-      final serviceErrors = _services[i].validate();
-      if (serviceErrors.isNotEmpty) {
-        errors['service_$i'] = serviceErrors;
-      }
-    }
-    
     if (errors.isNotEmpty) {
       _setValidationErrors(errors);
       return false;
@@ -349,7 +350,7 @@ class CharacterizationFormController with ChangeNotifier {
     }
     
     try {
-      final formData = _buildFormData();
+      final formData = _buildFormData().copyWith(isDraft: true);
       await _repository.saveDraft(formData);
     } catch (e) {
       // Error silencioso para auto-guardado
@@ -390,7 +391,7 @@ class CharacterizationFormController with ChangeNotifier {
     _isInReps = null;
     _currentPage = 0;
     _progress = 0.0;
-    _clearErrors();
+    clearErrors();
     formKey.currentState?.reset();
     pageController.animateToPage(
       0,
@@ -420,15 +421,16 @@ class CharacterizationFormController with ChangeNotifier {
     notifyListeners();
   }
 
-  void _clearErrors() {
+  void clearErrors() {
     _errorMessage = null;
     _validationErrors = null;
     if (_state == FormState.error) {
       _state = FormState.loaded;
     }
+    notifyListeners();
   }
 
-  void _clearValidationErrors() {
+  void clearValidationErrors() {
     _validationErrors = null;
   }
 
