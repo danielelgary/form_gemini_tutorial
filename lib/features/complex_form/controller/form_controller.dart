@@ -1,7 +1,7 @@
 // lib/features/complex_form/controller/form_controller.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import '../model/service_model.dart'; // Asegúrate de que este import sea correcto
+import '../model/service_model_improved.dart';
 
 class CharacterizationFormController with ChangeNotifier {
   final formKey = GlobalKey<FormBuilderState>();

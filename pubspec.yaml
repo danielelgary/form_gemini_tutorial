@@ -35,6 +35,7 @@ dependencies:
   
   # Manejo de fechas
   intl: 0.20.2
+  json_annotation: ^4.9.0
   
 dev_dependencies:
   flutter_test:

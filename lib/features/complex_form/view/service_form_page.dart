@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:form_gemini_tutorial/features/complex_form/model/service_model.dart';
+import 'package:form_gemini_tutorial/features/complex_form/model/service_model_improved.dart';
 // Necesitaremos estos dos archivos, que puedes crear después si quieres.
 // Por ahora, puedes comentar la línea del campo de búsqueda para evitar errores.
 // import 'package:form_gemini_tutorial/features/complex_form/view/service_search_page.dart';
@@ -39,7 +39,7 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
           direccion: formData['direccion'],
           disposicionLocativa: formData['disposicion_locativa'],
           tieneRetie: formData['tiene_retie'],
-          capacidad: _capacidadInstalada,
+          capacidadInstalada: _capacidadInstalada,
         ),
       );
 

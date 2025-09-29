@@ -5,8 +5,8 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 
 import '../controller/form_controller_improved.dart';
-import '../widgets/loading_overlay.dart';
-import '../model/service_model.dart'; // Usar modelo original
+import '../widgets/loading_overlay.dart'; 
+import '../model/service_model_improved.dart';
 
 /// Ejemplo de implementación de la página de formulario mejorada
 class ImprovedFormExample extends StatelessWidget {
@@ -295,7 +295,7 @@ class _FormContent extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Lista de servicios agregados
-          if (controller.services.isNotEmpty) ..[
+          if (controller.services.isNotEmpty) ...[
             Text(
               'Servicios agregados (${controller.services.length}):',
               style: Theme.of(context).textTheme.titleMedium,
@@ -320,7 +320,7 @@ class _FormContent extends StatelessWidget {
                 },
               ),
             ),
-          ] else ..[
+          ] else ...[
             const Expanded(
               child: Center(
                 child: Column(
@@ -517,6 +517,7 @@ class _FormContent extends StatelessWidget {
         departamento: 'Antioquia',
         ciudad: 'Medellín',
         direccion: 'Calle 123 #45-67',
+        capacidadInstalada: [CapacidadInstalada(tipo: 'consultorio', finalidad: 'General')],
       ),
     );
     

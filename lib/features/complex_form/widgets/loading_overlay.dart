@@ -32,7 +32,7 @@ class LoadingOverlay extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const CircularProgressIndicator(),
-                      if (message != null) ..[
+                      if (message != null) ...[
                         const SizedBox(height: 16),
                         Text(
                           message!,
@@ -159,7 +159,7 @@ class ErrorDisplay extends StatelessWidget {
             ],
           ),
           
-          if (message != null) ..[
+          if (message != null) ...[
             const SizedBox(height: 8),
             Text(
               message!,
@@ -169,7 +169,7 @@ class ErrorDisplay extends StatelessWidget {
             ),
           ],
           
-          if (fieldErrors != null && fieldErrors!.isNotEmpty) ..[
+          if (fieldErrors != null && fieldErrors!.isNotEmpty) ...[
             const SizedBox(height: 8),
             ...fieldErrors!.entries.map((entry) => Padding(
               padding: const EdgeInsets.only(bottom: 4),
@@ -197,7 +197,7 @@ class ErrorDisplay extends StatelessWidget {
             )),
           ],
           
-          if (onRetry != null) ..[
+          if (onRetry != null) ...[
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -290,7 +290,7 @@ class SuccessDisplay extends StatelessWidget {
               color: Colors.green.shade800,
             ),
           ),
-          if (onAction != null && actionLabel != null) ..[
+          if (onAction != null && actionLabel != null) ...[
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,

@@ -97,6 +97,9 @@ class ErrorInterceptor extends Interceptor {
       case DioExceptionType.unknown:
         message = 'Error desconocido: ${err.message}';
         break;
+      case DioExceptionType.badCertificate:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
     
     // Crear nueva excepción con mensaje amigable

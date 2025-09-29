@@ -1,7 +1,7 @@
 // lib/features/complex_form/repository/form_repository.dart
 import 'package:dio/dio.dart';
 import '../../../core/network/api_client.dart';
-import '../model/service_model.dart'; // Usar modelo original
+import '../model/service_model_improved.dart';
 import '../model/real_form_model.dart';
 
 /// Repositorio para manejar todas las operaciones relacionadas con formularios
@@ -144,17 +144,7 @@ class FormRepository {
       final serviceData = {
         'nombre': service.nombre,
         'modalidad': service.modalidad,
-        'infraestructura': {
-          'departamento': service.infraestructura.departamento,
-          'ciudad': service.infraestructura.ciudad,
-          'direccion': service.infraestructura.direccion,
-          'disposicion_locativa': service.infraestructura.disposicionLocativa,
-          'tiene_retie': service.infraestructura.tieneRetie,
-          'capacidad_instalada': service.infraestructura.capacidadInstalada.map((c) => {
-            'tipo': c.tipo,
-            'finalidad': c.finalidad,
-          }).toList(),
-        },
+        'infraestructura': service.infraestructura.toJson(),
       };
       
       final response = await _apiClient.post<Map<String, dynamic>>(
@@ -183,21 +173,7 @@ class FormRepository {
   Map<String, dynamic> _prepareFormDataForSubmission(RealFormModel formData) {
     return {
       'form_data': formData.toJson(),
-      'services': formData.services.map((service) => {
-        'nombre': service.nombre,
-        'modalidad': service.modalidad,
-        'infraestructura': {
-          'departamento': service.infraestructura.departamento,
-          'ciudad': service.infraestructura.ciudad,
-          'direccion': service.infraestructura.direccion,
-          'disposicion_locativa': service.infraestructura.disposicionLocativa,
-          'tiene_retie': service.infraestructura.tieneRetie,
-          'capacidad_instalada': service.infraestructura.capacidadInstalada.map((c) => {
-            'tipo': c.tipo,
-            'finalidad': c.finalidad,
-          }).toList(),
-        },
-      }).toList(),
+      'services': formData.services.map((service) => service.toJson()).toList(),
       'submission_timestamp': DateTime.now().toIso8601String(),
       'app_version': '1.0.0',
       'platform': 'flutter',

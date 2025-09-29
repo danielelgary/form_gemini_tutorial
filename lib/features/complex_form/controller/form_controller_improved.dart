@@ -2,9 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
-import '../model/service_model.dart'; // Usar el modelo original por compatibilidad
+import '../model/service_model_improved.dart';
 import '../model/real_form_model.dart';
 import '../repository/form_repository.dart';
 
@@ -364,7 +363,7 @@ class CharacterizationFormControllerImproved with ChangeNotifier {
       final drafts = await _repository.getDrafts();
       if (drafts.isNotEmpty) {
         final latestDraft = drafts.first;
-        _services = latestDraft.services.toList();
+        _services = latestDraft.services.cast<ServiceModel>().toList();
         _isInReps = latestDraft.isInReps;
         notifyListeners();
       }
