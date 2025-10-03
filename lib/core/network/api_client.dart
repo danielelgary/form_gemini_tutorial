@@ -1,10 +1,12 @@
 // lib/core/network/api_client.dart
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'api_interceptors.dart';
 
 /// Cliente HTTP principal para todas las peticiones de la aplicación
 class ApiClient {
-  static const String _baseUrl = 'https://api.habigo.com'; // Cambia por tu URL
+  // La URL base ahora se lee desde las variables de entorno
+  static final String _baseUrl = dotenv.env['BASE_URL'] ?? 'https://api.fallback.com';
   static const Duration _connectTimeout = Duration(seconds: 30);
   static const Duration _receiveTimeout = Duration(seconds: 30);
   

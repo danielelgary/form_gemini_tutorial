@@ -1,8 +1,10 @@
 // Punto de entrada de la aplicación, ahora inicia en WelcomeScreen.
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:form_gemini_tutorial/welcome_screen.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MainApp());
 }
 

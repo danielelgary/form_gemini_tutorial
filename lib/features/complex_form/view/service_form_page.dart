@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:form_gemini_tutorial/features/complex_form/model/service_model_improved.dart';
-// Necesitaremos estos dos archivos, que puedes crear después si quieres.
-// Por ahora, puedes comentar la línea del campo de búsqueda para evitar errores.
-// import 'package:form_gemini_tutorial/features/complex_form/view/service_search_page.dart';
+import 'package:form_gemini_tutorial/features/complex_form/view/service_search_page.dart';
 
 class ServiceFormPage extends StatefulWidget {
   final ServiceModel? serviceToEdit;
@@ -110,8 +108,24 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
 
               FormBuilderTextField(
                 name: 'nombre_servicio',
-                decoration: const InputDecoration(labelText: 'Nombre del servicio a inscribir', border: OutlineInputBorder()),
-                validator: FormBuilderValidators.required()
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre del servicio a inscribir',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.search),
+                ),
+                validator: FormBuilderValidators.required(),
+                onTap: () async {
+                  final selectedService = await Navigator.of(context).push<String>(
+                    MaterialPageRoute(builder: (_) => const ServiceSearchPage()),
+                  );
+
+                  if (selectedService != null) {
+                    _serviceFormKey.currentState?.patchValue({
+                      'nombre_servicio': selectedService,
+                    });
+                  }
+                },
               ),
               const SizedBox(height: 16),
               FormBuilderDropdown(

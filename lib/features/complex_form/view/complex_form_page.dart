@@ -46,11 +46,27 @@ class ComplexFormPage extends StatelessWidget {
             final pages = [
               SimpleQuestionPage(
                 title: "Paso 1: ¡Hola! ¿Cuál es tu nombre?",
-                formField: FormBuilderTextField(name: 'fullName', decoration: const InputDecoration(labelText: 'Nombre Completo'), validator: FormBuilderValidators.required()),
+                formField: FormBuilderTextField(
+                  name: 'fullName',
+                  decoration: InputDecoration(
+                    labelText: 'Nombre Completo',
+                    errorText: controller.serverErrors['fullName'],
+                  ),
+                  validator: FormBuilderValidators.required(),
+                  onChanged: (_) => controller.clearError('fullName'),
+                ),
               ),
               SimpleQuestionPage(
                 title: "Paso 2: ¿Y tu identificación?",
-                formField: FormBuilderTextField(name: 'identification', decoration: const InputDecoration(labelText: 'Número de Identificación (C.C. o NIT)'), validator: FormBuilderValidators.required()),
+                formField: FormBuilderTextField(
+                  name: 'identification',
+                  decoration: InputDecoration(
+                    labelText: 'Número de Identificación (C.C. o NIT)',
+                    errorText: controller.serverErrors['identification'],
+                  ),
+                  validator: FormBuilderValidators.required(),
+                  onChanged: (_) => controller.clearError('identification'),
+                ),
               ),
               SimpleQuestionPage(
                 title: "Paso 3: ¿Qué tipo de prestador eres?",

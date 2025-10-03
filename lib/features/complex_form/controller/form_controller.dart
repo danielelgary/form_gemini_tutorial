@@ -17,6 +17,9 @@ class CharacterizationFormController with ChangeNotifier {
   bool _isSubmitting = false;
   bool get isSubmitting => _isSubmitting;
 
+  Map<String, String> _serverErrors = {};
+  Map<String, String> get serverErrors => _serverErrors;
+
   List<ServiceModel> services = [];
   bool? isInReps;
 
@@ -28,6 +31,13 @@ class CharacterizationFormController with ChangeNotifier {
         notifyListeners();
       }
     });
+  }
+
+  void clearError(String fieldName) {
+    if (_serverErrors.containsKey(fieldName)) {
+      _serverErrors.remove(fieldName);
+      notifyListeners();
+    }
   }
 
   void setIsInReps(bool? value) {
@@ -71,6 +81,7 @@ class CharacterizationFormController with ChangeNotifier {
   }
 
   Future<void> submitForm(BuildContext context) async {
+    _serverErrors = {}; // Limpiar errores anteriores
     if (formKey.currentState?.saveAndValidate(focusOnInvalid: false) ?? false) {
       _isSubmitting = true;
       notifyListeners();
@@ -102,6 +113,16 @@ class CharacterizationFormController with ChangeNotifier {
               (route) => route.isFirst,
             );
           } else {
+            if (result.errors != null) {
+              // Procesar y almacenar errores del servidor
+              result.errors!.forEach((field, messages) {
+                if (messages.isNotEmpty) {
+                  _serverErrors[field] = messages.first;
+                }
+              });
+              // Volver a la primera página para mostrar el error
+              pageController.jumpToPage(0);
+            }
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Error: ${result.message}'),

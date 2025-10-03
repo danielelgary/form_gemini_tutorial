@@ -67,6 +67,18 @@ class FormRepository {
     // Simula una llamada de red con un retardo de 2 segundos.
     await Future.delayed(const Duration(seconds: 2));
 
+    // Simulación de error de validación desde el backend
+    if (formData.fullName?.toLowerCase() == 'error') {
+      return FormSubmissionResult(
+        success: false,
+        message: "Se encontraron errores de validación.",
+        errors: {
+          'fullName': ['Este nombre de usuario ya está registrado.'],
+          'identification': ['El número de identificación no es válido según nuestras políticas.'],
+        },
+      );
+    }
+
     // Devuelve un resultado exitoso simulado.
     return FormSubmissionResult(
       success: true,
