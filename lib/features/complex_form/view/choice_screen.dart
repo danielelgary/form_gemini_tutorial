@@ -42,9 +42,7 @@ class ChoiceScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               OutlinedButton(
-                onPressed: () {
-                  // TODO: Implementar la pantalla de inicio de sesión
-                },
+                onPressed: null, // La funcionalidad de inicio de sesión no está implementada
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

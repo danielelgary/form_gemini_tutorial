@@ -1,14 +1,21 @@
 // lib/features/complex_form/controller/form_controller.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_gemini_tutorial/features/complex_form/model/real_form_model.dart';
+import 'package:form_gemini_tutorial/features/complex_form/repository/form_repository.dart';
+import 'package:form_gemini_tutorial/features/complex_form/view/submission_result_page.dart';
 import '../model/service_model_improved.dart';
 
 class CharacterizationFormController with ChangeNotifier {
   final formKey = GlobalKey<FormBuilderState>();
   final PageController pageController = PageController();
+  final FormRepository _formRepository = FormRepository();
 
   int _currentPage = 0;
   int get currentPage => _currentPage;
+
+  bool _isSubmitting = false;
+  bool get isSubmitting => _isSubmitting;
 
   List<ServiceModel> services = [];
   bool? isInReps;
@@ -63,22 +70,77 @@ class CharacterizationFormController with ChangeNotifier {
     );
   }
 
-  Future<void> submitForm() async {
+  Future<void> submitForm(BuildContext context) async {
     if (formKey.currentState?.saveAndValidate(focusOnInvalid: false) ?? false) {
-      final formData = formKey.currentState!.value;
-      print("--- FORMULARIO A ENVIAR ---");
-      print("Datos principales:");
-      print(formData);
-      print("--- Servicios Añadidos (${services.length}) ---");
-      for (var service in services) {
-        print("- Servicio: ${service.nombre}");
-        print("  Modalidad: ${service.modalidad}");
-        print("  Infraestructura: ${service.infraestructura.direccion}");
-        print("  Capacidad: ${service.infraestructura.capacidadInstalada.length} items");
+      _isSubmitting = true;
+      notifyListeners();
+
+      try {
+        final formData = formKey.currentState!.value;
+
+        final submissionModel = RealFormModel(
+          fullName: formData['fullName'],
+          identification: formData['identification'],
+          providerType: formData['providerType'],
+          isInReps: formData['isInReps'],
+          services: services,
+          createdAt: DateTime.now(),
+        );
+
+        // --- SIMULACIÓN DE ENVÍO ---
+        // En un caso real, aquí llamaríamos al repositorio:
+        // final result = await _formRepository.submitForm(submissionModel);
+
+        // Para este ejemplo, simularemos una respuesta exitosa después de 2 segundos.
+        await Future.delayed(const Duration(seconds: 2));
+        final result = FormSubmissionResult(
+          success: true,
+          message: "¡Caracterización enviada con éxito!",
+          submissionId: "HABIGO-${DateTime.now().millisecondsSinceEpoch}",
+        );
+        // --- FIN DE LA SIMULACIÓN ---
+
+        if (context.mounted) {
+          if (result.success) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (_) => SubmissionResultPage(
+                  success: true,
+                  message: result.message,
+                  submissionId: result.submissionId,
+                ),
+              ),
+              (route) => route.isFirst,
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error: ${result.message}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Ocurrió un error inesperado: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } finally {
+        _isSubmitting = false;
+        notifyListeners();
       }
-      print("--------------------------");
     } else {
-      print("El formulario contiene errores.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, corrige los errores en el formulario.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
   }
 

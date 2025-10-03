@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:form_gemini_tutorial/features/complex_form/controller/form_controller.dart';
-// Importaremos esta página en el siguiente paso, el error aquí es temporal.
-import 'package:form_gemini_tutorial/features/complex_form/view/services_section_page.dart'; 
+import 'package:form_gemini_tutorial/features/complex_form/view/services_section_page.dart';
 import 'package:provider/provider.dart';
 
-// Widget genérico para una página de pregunta simple, para mantener el código limpio
+// Widget genérico para una página de pregunta simple.
 class SimpleQuestionPage extends StatelessWidget {
   final String title;
   final Widget formField;
@@ -44,7 +43,6 @@ class ComplexFormPage extends StatelessWidget {
         ),
         body: Consumer<CharacterizationFormController>(
           builder: (context, controller, child) {
-            // La lista de páginas ahora es una lista de widgets de sección
             final pages = [
               SimpleQuestionPage(
                 title: "Paso 1: ¡Hola! ¿Cuál es tu nombre?",
@@ -83,7 +81,6 @@ class ComplexFormPage extends StatelessWidget {
                   validator: FormBuilderValidators.required(),
                 ),
               ),
-              // La nueva sección para gestionar servicios (la crearemos a continuación)
               const ServicesSectionPage(),
             ];
 
@@ -111,9 +108,23 @@ class ComplexFormPage extends StatelessWidget {
                     TextButton.icon(icon: const Icon(Icons.arrow_back), label: const Text("Anterior"), onPressed: controller.previousPage),
                   const Spacer(),
                   ElevatedButton(
-                    onPressed: isLastPage ? controller.submitForm : controller.nextPage,
-                    style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
-                    child: Text(isLastPage ? "Finalizar y Enviar" : "Siguiente"),
+                    onPressed: controller.isSubmitting
+                        ? null
+                        : (isLastPage ? () => controller.submitForm(context) : controller.nextPage),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      disabledBackgroundColor: Colors.blue.shade400,
+                    ),
+                    child: controller.isSubmitting
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
+                          )
+                        : Text(isLastPage ? "Finalizar y Enviar" : "Siguiente"),
                   ),
                 ],
               ),
