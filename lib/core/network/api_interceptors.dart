@@ -98,8 +98,8 @@ class ErrorInterceptor extends Interceptor {
         message = 'Error desconocido: ${err.message}';
         break;
       case DioExceptionType.badCertificate:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        message = 'Error de certificado SSL. La conexión no es segura.';
+        break;
     }
     
     // Crear nueva excepción con mensaje amigable

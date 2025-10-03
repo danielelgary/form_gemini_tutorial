@@ -23,7 +23,7 @@ class LoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: backgroundColor ?? Colors.black.withOpacity(0.3),
+            color: backgroundColor ?? Colors.black.withAlpha((255 * 0.3).round()), // Corrección de método obsoleto
             child: Center(
               child: Card(
                 child: Padding(

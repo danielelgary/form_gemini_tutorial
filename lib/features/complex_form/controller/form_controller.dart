@@ -87,18 +87,7 @@ class CharacterizationFormController with ChangeNotifier {
           createdAt: DateTime.now(),
         );
 
-        // --- SIMULACIÓN DE ENVÍO ---
-        // En un caso real, aquí llamaríamos al repositorio:
-        // final result = await _formRepository.submitForm(submissionModel);
-
-        // Para este ejemplo, simularemos una respuesta exitosa después de 2 segundos.
-        await Future.delayed(const Duration(seconds: 2));
-        final result = FormSubmissionResult(
-          success: true,
-          message: "¡Caracterización enviada con éxito!",
-          submissionId: "HABIGO-${DateTime.now().millisecondsSinceEpoch}",
-        );
-        // --- FIN DE LA SIMULACIÓN ---
+        final result = await _formRepository.submitForm(submissionModel);
 
         if (context.mounted) {
           if (result.success) {

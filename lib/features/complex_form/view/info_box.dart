@@ -13,7 +13,7 @@ class InfoBox extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha((255 * 0.1).round()), // Corrección de método obsoleto
         border: Border(left: BorderSide(color: color, width: 4)),
         borderRadius: BorderRadius.circular(4),
       ),

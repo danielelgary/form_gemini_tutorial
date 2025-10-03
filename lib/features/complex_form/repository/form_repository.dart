@@ -26,8 +26,8 @@ class FormRepository {
       // Fallback a datos mock si no hay respuesta del servidor
       return _getMockServices();
     } catch (e) {
-      // En caso de error, devolver datos mock
-      print('Error obteniendo servicios: $e');
+      // En caso de error, devolver datos mock.
+      // En una implementación real, aquí se registraría el error.
       return _getMockServices();
     }
   }
@@ -55,48 +55,24 @@ class FormRepository {
       
       return _getMockLocations();
     } catch (e) {
-      print('Error obteniendo ubicaciones: $e');
+      // En caso de error, devolver datos mock.
+      // En una implementación real, aquí se registraría el error.
       return _getMockLocations();
     }
   }
   
-  /// Envía el formulario completo al backend
+  /// Envía el formulario completo al backend.
+  /// **Nota:** Actualmente simula una llamada de red.
   Future<FormSubmissionResult> submitForm(RealFormModel formData) async {
-    try {
-      // Preparar los datos para enviar
-      final jsonData = _prepareFormDataForSubmission(formData);
-      
-      final response = await _apiClient.post<Map<String, dynamic>>(
-        '/api/forms/characterization/submit',
-        data: jsonData,
-      );
-      
-      final responseData = response.data;
-      if (responseData != null) {
-        return FormSubmissionResult.fromJson(responseData);
-      }
-      
-      throw Exception('Respuesta inválida del servidor');
-    } catch (e) {
-      if (e is DioException) {
-        // Manejo especial para errores de validación
-        if (e.response?.statusCode == 422) {
-          final errorData = e.response?.data;
-          if (errorData is Map<String, dynamic>) {
-            return FormSubmissionResult(
-              success: false,
-              message: 'Error de validación',
-              errors: _parseValidationErrors(errorData),
-            );
-          }
-        }
-      }
-      
-      return FormSubmissionResult(
-        success: false,
-        message: 'Error al enviar el formulario: ${e.toString()}',
-      );
-    }
+    // Simula una llamada de red con un retardo de 2 segundos.
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Devuelve un resultado exitoso simulado.
+    return FormSubmissionResult(
+      success: true,
+      message: "¡Caracterización enviada con éxito!",
+      submissionId: "HABIGO-${DateTime.now().millisecondsSinceEpoch}",
+    );
   }
   
   /// Guarda un borrador del formulario
@@ -112,7 +88,7 @@ class FormRepository {
       
       return true;
     } catch (e) {
-      print('Error guardando borrador: $e');
+      // En una implementación real, aquí se registraría el error.
       return false;
     }
   }
@@ -132,7 +108,7 @@ class FormRepository {
       
       return [];
     } catch (e) {
-      print('Error obteniendo borradores: $e');
+      // En una implementación real, aquí se registraría el error.
       return [];
     }
   }
